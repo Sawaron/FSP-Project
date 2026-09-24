@@ -14,33 +14,46 @@ public class Competition {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Version
     private Long version;
+
     @Column(nullable = false, length = 200)
     private String title;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 40)
     private CompetitionLevel level;
+
     @Column(name = "discipline_id", nullable = false)
     private long disciplineId;
+
     @Column(name = "starts_at", nullable = false)
     private Instant startsAt;
+
     @Column(name = "ends_at", nullable = false)
     private Instant endsAt;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private CompetitionFormat format;
+
     @Column(length = 500)
     private String venue;
+
     @Column(nullable = false, length = 5000)
     private String description;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private CompetitionStatus status;
+
     @Column(name = "registration_opens_at", nullable = false)
     private Instant registrationOpensAt;
+
     @Column(name = "registration_closes_at", nullable = false)
     private Instant registrationClosesAt;
+
     @Column(name = "created_by_user_id", nullable = false, updatable = false)
     private long createdByUserId;
 
