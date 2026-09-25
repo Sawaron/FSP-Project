@@ -2,7 +2,9 @@ package com.codeandpray.auth.entity;
 
 import com.codeandpray.auth.enums.UserRole;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.Locale;
@@ -12,8 +14,6 @@ import java.util.Objects;
 @Table(name = "users")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
-@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,10 +36,18 @@ public class User {
     private Instant createdAt;
 
     public static User registerAthlete(String email, String passwordHash, Instant now) {
+        return create(email, passwordHash, UserRole.ATHLETE, now);
+    }
+
+    public static User createOrganizer(String email, String passwordHash, Instant now) {
+        return create(email, passwordHash, UserRole.ORGANIZER, now);
+    }
+
+    private static User create(String email, String passwordHash, UserRole role, Instant now) {
         User user = new User();
         user.email = normalizeEmail(email);
         user.changePasswordHash(passwordHash);
-        user.role = UserRole.ATHLETE;
+        user.role = Objects.requireNonNull(role);
         user.enabled = true;
         user.createdAt = Objects.requireNonNull(now);
         return user;

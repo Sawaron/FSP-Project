@@ -22,6 +22,31 @@ public interface ResultRepository extends JpaRepository<Result, Long> {
 
     Page<Result> findByStatus(ResultStatus status, Pageable pageable);
 
+    @Query(
+            value = """
+                    select r.*
+                    from results r
+                    join registrations registration
+                      on registration.id = r.registration_id
+                    where registration.athlete_id = :athleteId
+                      and r.status = 'PUBLISHED'
+                    order by r.published_at desc, r.id desc
+                    """,
+            countQuery = """
+                    select count(*)
+                    from results r
+                    join registrations registration
+                      on registration.id = r.registration_id
+                    where registration.athlete_id = :athleteId
+                      and r.status = 'PUBLISHED'
+                    """,
+            nativeQuery = true
+    )
+    Page<Result> findPublishedByAthleteId(
+            @Param("athleteId") long athleteId,
+            Pageable pageable
+    );
+
     @Query("select r.registrationId from Result r where r.id = :id")
     Optional<Long> findRegistrationIdById(@Param("id") long id);
 

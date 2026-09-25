@@ -1,7 +1,13 @@
 spring:
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/technofest}
-    username: postgres
-    password: 314159265358979323846
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD}
   jpa:
     show-sql: false
+
+app:
+  local-organizer:
+    enabled: ${LOCAL_ORGANIZER_ENABLED:false}
+    email: ${LOCAL_ORGANIZER_EMAIL:organizer@example.com}
+    password: ${LOCAL_ORGANIZER_PASSWORD:}

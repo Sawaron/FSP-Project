@@ -4,15 +4,21 @@ import com.codeandpray.common.exception.BusinessException;
 import com.codeandpray.common.security.CurrentActor;
 import com.codeandpray.common.web.*;
 import com.codeandpray.registration.dto.RegistrationResponse;
+import com.codeandpray.registration.dto.AthleteSummaryResponse;
 import com.codeandpray.registration.entity.Registration;
 import com.codeandpray.registration.enums.RegistrationStatus;
 import com.codeandpray.registration.port.RegistrationContext;
+import com.codeandpray.registration.port.RegistrationAthleteDirectory;
 import com.codeandpray.registration.repository.RegistrationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +27,7 @@ public class RegistrationService {
     private final RegistrationRepository repository;
     private final CurrentActor actor;
     private final RegistrationContext context;
+    private final RegistrationAthleteDirectory athletes;
     private final Clock clock;
 
     @Transactional
@@ -43,7 +50,7 @@ public class RegistrationService {
         } else {
             registration = Registration.create(competitionId, athleteId, clock.instant());
         }
-        return toDto(repository.saveAndFlush(registration));
+        return toDto(repository.saveAndFlush(registration), summary(athleteId));
     }
 
     @Transactional
@@ -60,21 +67,21 @@ public class RegistrationService {
             throw BusinessException.forbidden("Нельзя отменить чужую заявку");
         }
         if (registration.getStatus() == RegistrationStatus.CANCELLED) {
-            return toDto(registration);
+            return toDto(registration, summary(athleteId));
         }
         if (!competition.registrationOpen(clock.instant())) {
             throw BusinessException.conflict("Срок отмены заявки истёк");
         }
         registration.cancel();
         repository.flush();
-        return toDto(registration);
+        return toDto(registration, summary(athleteId));
     }
 
     public PageResponse<RegistrationResponse> getMyRegistrations(int page, int size) {
         long athleteId = context.athleteIdForUser(actor.requireAthleteUserId());
-        return PageResponse.from(repository.findByAthleteId(athleteId,
+        return toPage(repository.findByAthleteId(athleteId,
                 PageRequests.of(page, size, Sort.by("registeredAt").descending()
-                        .and(Sort.by("id").descending()))).map(this::toDto));
+                        .and(Sort.by("id").descending()))));
     }
 
     public PageResponse<RegistrationResponse> getCompetitionParticipants(
@@ -85,15 +92,44 @@ public class RegistrationService {
         if (competition.organizerId() != organizerId) {
             throw BusinessException.forbidden("Недоступны участники чужого соревнования");
         }
-        return PageResponse.from(repository.findByCompetitionIdAndStatus(
+        return toPage(repository.findByCompetitionIdAndStatus(
                         competitionId, RegistrationStatus.REGISTERED,
-                        PageRequests.of(page, size, Sort.by("registeredAt").and(Sort.by("id"))))
-                .map(this::toDto));
+                        PageRequests.of(page, size, Sort.by("registeredAt").and(Sort.by("id")))));
     }
 
-    private RegistrationResponse toDto(Registration registration) {
+    private PageResponse<RegistrationResponse> toPage(Page<Registration> page) {
+        Set<Long> athleteIds = page.getContent().stream()
+                .map(Registration::getAthleteId)
+                .collect(Collectors.toSet());
+        Map<Long, RegistrationAthleteDirectory.AthleteSummary> summaries = athletes.findAll(athleteIds);
+        return PageResponse.from(page.map(registration ->
+                toDto(registration, requireSummary(registration.getAthleteId(), summaries))));
+    }
+
+    private RegistrationResponse toDto(
+            Registration registration,
+            RegistrationAthleteDirectory.AthleteSummary athlete
+    ) {
         return new RegistrationResponse(registration.getId(), registration.getCompetitionId(),
-                registration.getAthleteId(), registration.getStatus(), registration.getRegisteredAt());
+                registration.getAthleteId(), new AthleteSummaryResponse(
+                athlete.id(), athlete.fullName(), athlete.city(),
+                athlete.organization(), athlete.qualification()),
+                registration.getStatus(), registration.getRegisteredAt());
+    }
+
+    private RegistrationAthleteDirectory.AthleteSummary summary(long athleteId) {
+        return requireSummary(athleteId, athletes.findAll(Set.of(athleteId)));
+    }
+
+    private RegistrationAthleteDirectory.AthleteSummary requireSummary(
+            long athleteId,
+            Map<Long, RegistrationAthleteDirectory.AthleteSummary> summaries
+    ) {
+        RegistrationAthleteDirectory.AthleteSummary summary = summaries.get(athleteId);
+        if (summary == null) {
+            throw BusinessException.notFound("Профиль спортсмена не найден");
+        }
+        return summary;
     }
 
     private static void positive(Long id) {
