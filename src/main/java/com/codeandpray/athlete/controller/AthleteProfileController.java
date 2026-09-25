@@ -7,6 +7,7 @@ import com.codeandpray.athlete.service.AthleteProfileService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,9 +24,14 @@ public class AthleteProfileController {
 
     @PostMapping
     public ResponseEntity<AthleteProfileDto> create(
-            @RequestParam Long userId,
+            Authentication authentication,
             @Valid @RequestBody AthleteProfileRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(userId, request));
+
+        Long userId = Long.valueOf(authentication.getName());
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(service.create(userId, request));
     }
 
     @GetMapping("/{id}")

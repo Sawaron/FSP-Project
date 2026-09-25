@@ -1,5 +1,5 @@
 package com.codeandpray.athlete;
-import com.codeandpray.user.entity.User;
+import com.codeandpray.auth.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
