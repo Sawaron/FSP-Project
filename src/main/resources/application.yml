@@ -1,4 +1,5 @@
-port: ${SERVER_PORT:8081}
+server:
+  port: ${SERVER_PORT:8081}
 
 spring:
   application:

@@ -1,107 +1,99 @@
 package com.codeandpray.athlete.service;
 
-import com.codeandpray.athlete.*;
-import com.codeandpray.athlete.dto.AthleteProfileDto;
+import com.codeandpray.athlete.dto.AthleteProfileRequest;
+import com.codeandpray.athlete.dto.AthleteProfileResponse;
+import com.codeandpray.athlete.entity.AthleteProfile;
+import com.codeandpray.athlete.entity.Organization;
+import com.codeandpray.athlete.entity.Qualification;
+import com.codeandpray.athlete.mapper.AthleteProfileMapper;
+import com.codeandpray.athlete.port.AthleteRating;
 import com.codeandpray.athlete.repository.AthleteProfileRepository;
 import com.codeandpray.athlete.repository.OrganizationRepository;
 import com.codeandpray.athlete.repository.QualificationRepository;
-import com.codeandpray.user.repository.UserRepository;
+import com.codeandpray.common.exception.BusinessException;
+import com.codeandpray.common.security.CurrentActor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.util.List;
+import java.time.Clock;
+import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AthleteProfileService {
-
-    private final AthleteProfileRepository repository;
-    private final UserRepository userRepository;
-    private final OrganizationRepository organizationRepository;
-    private final QualificationRepository qualificationRepository;
-
-    public AthleteProfileService(
-            AthleteProfileRepository repository,
-            UserRepository userRepository,
-            OrganizationRepository organizationRepository,
-            QualificationRepository qualificationRepository) {
-        this.repository = repository;
-        this.userRepository = userRepository;
-        this.organizationRepository = organizationRepository;
-        this.qualificationRepository = qualificationRepository;
-    }
+    private final AthleteProfileRepository profiles;
+    private final OrganizationRepository organizations;
+    private final QualificationRepository qualifications;
+    private final AthleteProfileMapper mapper;
+    private final AthleteRating rating;
+    private final CurrentActor actor;
+    private final Clock clock;
 
     @Transactional
-    public AthleteProfileDto create(Long userId, AthleteProfileRequest request) {
-        AthleteProfile profile = new AthleteProfile();
-        profile.setUser(userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId)));
-        profile.setFullName(request.fullName());
-        profile.setCity(request.city());
-
-        if (request.organizationId() != null) {
-            profile.setOrganization(organizationRepository.findById(request.organizationId())
-                    .orElseThrow(() -> new IllegalArgumentException("Organization not found")));
+    public AthleteProfileResponse createMine(AthleteProfileRequest request) {
+        long userId = actor.requireAthleteUserId();
+        if (profiles.existsByUserId(userId)) {
+            throw BusinessException.conflict("Профиль спортсмена уже создан");
         }
-        if (request.qualificationId() != null) {
-            profile.setQualification(qualificationRepository.findById(request.qualificationId())
-                    .orElseThrow(() -> new IllegalArgumentException("Qualification not found")));
-        }
-
-        profile.setCreatedAt(Instant.now());
-        profile.setUpdatedAt(Instant.now());
-
-        AthleteProfile saved = repository.save(profile);
-        return toDto(saved);
-    }
-
-    @Transactional(readOnly = true)
-    public AthleteProfileDto getById(Long id) {
-        AthleteProfile profile = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Profile not found: " + id));
-        return toDto(profile);
-    }
-
-    @Transactional(readOnly = true)
-    public List<AthleteProfileDto> getAll() {
-        return repository.findAll().stream().map(this::toDto).toList();
-    }
-
-    @Transactional
-    public AthleteProfileDto update(Long id, AthleteProfileRequest request) {
-        AthleteProfile profile = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Profile not found: " + id));
-
-        profile.setFullName(request.fullName());
-        profile.setCity(request.city());
-        profile.setUpdatedAt(Instant.now());
-
-        if (request.organizationId() != null) {
-            profile.setOrganization(organizationRepository.findById(request.organizationId())
-                    .orElseThrow(() -> new IllegalArgumentException("Organization not found")));
-        }
-        if (request.qualificationId() != null) {
-            profile.setQualification(qualificationRepository.findById(request.qualificationId())
-                    .orElseThrow(() -> new IllegalArgumentException("Qualification not found")));
-        }
-
-        return toDto(repository.save(profile));
-    }
-
-    @Transactional
-    public void delete(Long id) {
-        if (!repository.existsById(id)) {
-            throw new IllegalArgumentException("Profile not found: " + id);
-        }
-        repository.deleteById(id);
-    }
-
-    private AthleteProfileDto toDto(AthleteProfile p) {
-        return new AthleteProfileDto(
-                p.getFullName(),
-                p.getOrganization() != null ? p.getOrganization().getId() : null,
-                p.getCity(),
-                p.getQualification() != null ? p.getQualification().getId() : null
+        AthleteProfile profile = AthleteProfile.create(
+                userId,
+                request.fullName(),
+                findOrganization(request.organizationId()),
+                request.city(),
+                findQualification(request.qualificationId()),
+                clock.instant()
         );
+        AthleteProfile saved = profiles.saveAndFlush(profile);
+        rating.recalculate(saved.getId());
+        return mapper.toResponse(saved);
+    }
+
+    public AthleteProfileResponse getMine() {
+        long userId = actor.requireAthleteUserId();
+        return mapper.toResponse(profiles.findByUserId(userId)
+                .orElseThrow(() -> BusinessException.notFound("Профиль спортсмена не найден")));
+    }
+
+    public AthleteProfileResponse getById(long athleteId) {
+        return mapper.toResponse(profiles.findById(athleteId)
+                .orElseThrow(() -> BusinessException.notFound("Профиль спортсмена не найден")));
+    }
+
+    @Transactional
+    public AthleteProfileResponse updateMine(AthleteProfileRequest request) {
+        long userId = actor.requireAthleteUserId();
+        AthleteProfile profile = profiles.lockByUserId(userId)
+                .orElseThrow(() -> BusinessException.notFound("Профиль спортсмена не найден"));
+        Organization organization = findOrganization(request.organizationId());
+        Qualification qualification = findQualification(request.qualificationId());
+        Long previousQualificationId = idOf(profile.getQualification());
+        profile.change(request.fullName(), organization, request.city(), qualification, clock.instant());
+        AthleteProfile saved = profiles.saveAndFlush(profile);
+        if (!Objects.equals(previousQualificationId, idOf(qualification))) {
+            rating.recalculate(saved.getId());
+        }
+        return mapper.toResponse(saved);
+    }
+
+    private Organization findOrganization(Long id) {
+        if (id == null) {
+            return null;
+        }
+        return organizations.findById(id)
+                .orElseThrow(() -> BusinessException.badRequest("Организация не найдена"));
+    }
+
+    private Qualification findQualification(Long id) {
+        if (id == null) {
+            return null;
+        }
+        return qualifications.findById(id)
+                .orElseThrow(() -> BusinessException.badRequest("Квалификация не найдена"));
+    }
+
+    private Long idOf(Qualification qualification) {
+        return qualification == null ? null : qualification.getId();
     }
 }
