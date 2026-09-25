@@ -5,7 +5,7 @@ import com.codeandpray.athlete.dto.AthleteProfileDto;
 import com.codeandpray.athlete.repository.AthleteProfileRepository;
 import com.codeandpray.athlete.repository.OrganizationRepository;
 import com.codeandpray.athlete.repository.QualificationRepository;
-import com.codeandpray.user.repository.UserRepository;
+import com.codeandpray.auth.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
