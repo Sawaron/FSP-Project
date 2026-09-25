@@ -49,13 +49,16 @@ CREATE TABLE competitions (
                               discipline_id BIGINT NOT NULL REFERENCES disciplines(id),
                               starts_at TIMESTAMPTZ NOT NULL,
                               ends_at TIMESTAMPTZ NOT NULL,
-                              format VARCHAR(50) NOT NULL,
+                              format VARCHAR(50) NOT NULL DEFAULT 'OFFLINE',
                               venue VARCHAR(255),
                               description TEXT,
                               status VARCHAR(50) NOT NULL,
                               registration_opens_at TIMESTAMPTZ NOT NULL,
                               registration_closes_at TIMESTAMPTZ NOT NULL,
-                              created_by_user_id BIGINT NOT NULL REFERENCES users(id)
+                              created_by_user_id BIGINT NOT NULL REFERENCES users(id),
+                              version BIGINT NOT NULL DEFAULT 0,
+                              created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                              updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE registrations (
@@ -82,9 +85,9 @@ CREATE TABLE results (
 CREATE TABLE rating_snapshots (
                                   id BIGSERIAL PRIMARY KEY,
                                   athlete_id BIGINT NOT NULL REFERENCES athlete_profiles(id),
-                                  total_points INT NOT NULL,
-                                  result_points INT NOT NULL,
-                                  qualification_points INT NOT NULL,
+                                  total_points BIGINT NOT NULL,
+                                  result_points BIGINT NOT NULL,
+                                  qualification_points BIGINT NOT NULL,
                                   calculated_at TIMESTAMPTZ DEFAULT NOW(),
                                   formula_version INT DEFAULT 1
 );

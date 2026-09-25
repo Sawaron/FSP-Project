@@ -15,23 +15,21 @@ INSERT INTO organizations (name, city) VALUES
                                            ('ДГТУ', 'Махачкала'),
                                            ('ДГУ', 'Махачкала');
 
--- Пользователи (Пароль для всех: admin123)
--- Организатор
+-- Пользователи (Пароль: admin123)
 INSERT INTO users (email, password_hash, role, created_at) VALUES
-    ('org@technofest.ru', '$2a$10$X8O.U8V/hX48K/G/uTInC.zBwBfE9hT0.QoU/5.F3eM3/6F6U3i5W', 'ORGANIZER', NOW());
-
--- Спортсмен 1 (уже с заполненным профилем)
-INSERT INTO users (email, password_hash, role, created_at) VALUES
-    ('athlete@technofest.ru', '$2a$10$X8O.U8V/hX48K/G/uTInC.zBwBfE9hT0.QoU/5.F3eM3/6F6U3i5W', 'ATHLETE', NOW());
+                                                               ('org@technofest.ru', '$2a$10$7Z8V4F0YI.gT9J3S/O0/1.e5pQO4uW6sZ1bM9T8vK7bL5yM3y5s6O', 'ORGANIZER', NOW()),
+                                                               ('athlete@technofest.ru', '$2a$10$7Z8V4F0YI.gT9J3S/O0/1.e5pQO4uW6sZ1bM9T8vK7bL5yM3y5s6O', 'ATHLETE', NOW());
 
 INSERT INTO athlete_profiles (user_id, full_name, organization_id, city, qualification_id, created_at, updated_at)
 VALUES (2, 'Магомедов Али', 1, 'Махачкала', 4, NOW(), NOW());
 
--- Тестовое соревнование для показа заявок
-INSERT INTO competitions (title, level, discipline_id, starts_at, ends_at, format, venue, description, status, registration_opens_at, registration_closes_at, created_by_user_id)
-VALUES (
-           'Кубок Дагестана - 2026', 'REGIONAL', 2,
-           NOW() + INTERVAL '10 days', NOW() + INTERVAL '12 days',
-           'OFFLINE', 'ДГТУ, Точка Кипения', 'Главный хакатон года',
-           'UPCOMING', NOW() - INTERVAL '2 days', NOW() + INTERVAL '5 days', 1
-       );
+-- Тестовое соревнование
+INSERT INTO competitions (
+    title, level, discipline_id, starts_at, ends_at, format, venue, description,
+    status, registration_opens_at, registration_closes_at, created_by_user_id, version
+) VALUES (
+             'Кубок Дагестана - 2026', 'REGIONAL', 2,
+             NOW() + INTERVAL '10 days', NOW() + INTERVAL '12 days',
+             'OFFLINE', 'ДГТУ, Точка Кипения', 'Главный хакатон года',
+             'UPCOMING', NOW() - INTERVAL '2 days', NOW() + INTERVAL '5 days', 1, 0
+         );

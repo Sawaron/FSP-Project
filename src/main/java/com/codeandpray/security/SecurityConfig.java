@@ -36,10 +36,15 @@ public class SecurityConfig {
                         // Публичные эндпоинты
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/competitions/**", "/api/ratings/**", "/api/disciplines/**", "/api/organizations/**", "/api/qualifications/**").permitAll()
+
                         // Защищенные разделы организатора
-                        .requestMatchers("/api/competitions/*/registrations").hasRole("ORGANIZER")
+                        .requestMatchers(HttpMethod.GET, "/api/competitions/*/registrations").hasRole("ORGANIZER")
                         .requestMatchers("/api/registrations/*/result").hasRole("ORGANIZER")
                         .requestMatchers("/api/results/*/publish").hasRole("ORGANIZER")
+
+                        // Подача заявок доступна спортсменам (и любым авторизованным)
+                        .requestMatchers(HttpMethod.POST, "/api/competitions/*/registrations").hasRole("ATHLETE")
+
                         // Все остальные требуют аутентификации
                         .anyRequest().authenticated()
                 )
