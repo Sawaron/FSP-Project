@@ -77,10 +77,6 @@ public class ResultService {
         );
     }
 
-    /**
-     * Организатор может читать в том числе черновик,
-     * но только у принадлежащего ему соревнования.
-     */
     public ResultResponse getForOrganizer(long id) {
         requirePositiveId(id);
         long organizerId = actor.requireOrganizerId();
@@ -166,7 +162,6 @@ public class ResultService {
 
         Result result = locked.result();
 
-        // Повторная публикация не создаёт новый снимок рейтинга.
         if (result.getStatus() == ResultStatus.PUBLISHED) {
             return mapper.toResponse(result);
         }
@@ -184,10 +179,8 @@ public class ResultService {
                 clock.instant()
         );
 
-        // Пересчёт должен увидеть PUBLISHED и новые баллы в БД.
         repository.flush();
 
-        // Ошибка здесь откатит и публикацию, и изменения рейтинга.
         rating.recalculate(locked.context().athleteId());
 
         return mapper.toResponse(result);
@@ -242,8 +235,6 @@ public class ResultService {
         requirePositiveId(id);
         long organizerId = actor.requireOrganizerId();
 
-        // Читаем только неизменяемую связь, затем берём блокировки
-        // в общем порядке и загружаем актуальный Result.
         long registrationId = repository.findRegistrationIdById(id)
                 .orElseThrow(() -> BusinessException.notFound(
                         "Результат не найден"
