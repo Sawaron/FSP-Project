@@ -26,12 +26,12 @@ public class AthleteProfile {
     @Column(name="full_name",nullable = false)
     private String fullName;
     @ManyToOne
-    @JoinColumn(name="organization_id",nullable=true)
+    @JoinColumn(name="organization_id")
     private Organization organization;
     @Column(name="city",nullable=false)
     private String city;
     @ManyToOne
-    @JoinColumn(name="qualification_id",nullable=true)
+    @JoinColumn(name="qualification_id")
     // nullable = true означает, что поле может отсутствовать (быть null)
     private Qualification qualification;
     private  Instant createdAt;

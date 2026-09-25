@@ -1,4 +1,4 @@
-package com.codeandpray.competition.dto;
+package com.codeandpray.athlete.dto;
 
 public record AthleteProfileDto(String fullName,
                                 Long organizationId,

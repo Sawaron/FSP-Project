@@ -1,11 +1,10 @@
-package com.codeandpray.competition.service;
+package com.codeandpray.athlete.service;
 
-import com.codeandpray.athlete.AthleteProfile;
-import com.codeandpray.athlete.AthleteProfileRequest;
-import com.codeandpray.athlete.OrganizationRepository;
-import com.codeandpray.athlete.QualificationRepository;
-import com.codeandpray.competition.repository.AthleteProfileRepository;
-import com.codeandpray.competition.dto.AthleteProfileDto;
+import com.codeandpray.athlete.*;
+import com.codeandpray.athlete.dto.AthleteProfileDto;
+import com.codeandpray.athlete.repository.AthleteProfileRepository;
+import com.codeandpray.athlete.repository.OrganizationRepository;
+import com.codeandpray.athlete.repository.QualificationRepository;
 import com.codeandpray.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

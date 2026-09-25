@@ -1,4 +1,4 @@
-package com.codeandpray.competition.repository;
+package com.codeandpray.athlete.repository;
 
 
 import com.codeandpray.athlete.AthleteProfile;
