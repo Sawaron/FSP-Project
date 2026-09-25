@@ -8,6 +8,7 @@ public record RegistrationResponse(
         Long id,
         Long competitionId,
         Long athleteId,
+        AthleteSummaryResponse athlete,
         RegistrationStatus status,
         Instant registeredAt
 ) {}
