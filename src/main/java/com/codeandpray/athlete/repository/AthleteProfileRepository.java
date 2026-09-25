@@ -1,7 +1,6 @@
 package com.codeandpray.athlete.repository;
 
 
-import com.codeandpray.athlete.AthleteProfile;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
