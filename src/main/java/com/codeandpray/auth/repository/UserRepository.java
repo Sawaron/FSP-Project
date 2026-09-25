@@ -1,6 +1,6 @@
-package com.codeandpray.user.repository;
+package com.codeandpray.auth.repository;
 
-import com.codeandpray.user.entity.User;
+import com.codeandpray.auth.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

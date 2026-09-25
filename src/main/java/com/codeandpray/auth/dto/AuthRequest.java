@@ -1,4 +1,4 @@
-package com.codeandpray.user.dto;
+package com.codeandpray.auth.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

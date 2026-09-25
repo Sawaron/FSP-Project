@@ -1,4 +1,4 @@
-package com.codeandpray.user.enums;
+package com.codeandpray.auth.enums;
 
 public enum UserRole {
     ATHLETE,

@@ -1,6 +1,6 @@
-package com.codeandpray.user.dto;
+package com.codeandpray.auth.dto;
 
-import com.codeandpray.user.enums.UserRole;
+import com.codeandpray.auth.enums.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

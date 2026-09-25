@@ -1,8 +1,8 @@
-package com.codeandpray.user.controller;
+package com.codeandpray.auth.controller;
 
-import com.codeandpray.user.dto.AuthRequest;
-import com.codeandpray.user.dto.AuthResponse;
-import com.codeandpray.user.service.AuthService;
+import com.codeandpray.auth.dto.AuthRequest;
+import com.codeandpray.auth.dto.AuthResponse;
+import com.codeandpray.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

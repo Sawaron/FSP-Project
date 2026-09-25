@@ -1,12 +1,12 @@
-package com.codeandpray.user.service;
+package com.codeandpray.auth.service;
 
 import com.codeandpray.security.JwtService;
 import com.codeandpray.security.SecurityUser;
-import com.codeandpray.user.dto.AuthRequest;
-import com.codeandpray.user.dto.AuthResponse;
-import com.codeandpray.user.entity.User;
-import com.codeandpray.user.enums.UserRole;
-import com.codeandpray.user.repository.UserRepository;
+import com.codeandpray.auth.dto.AuthRequest;
+import com.codeandpray.auth.dto.AuthResponse;
+import com.codeandpray.auth.entity.User;
+import com.codeandpray.auth.enums.UserRole;
+import com.codeandpray.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;

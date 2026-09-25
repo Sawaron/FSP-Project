@@ -1,6 +1,6 @@
-package com.codeandpray.user.entity;
+package com.codeandpray.auth.entity;
 
-import com.codeandpray.user.enums.UserRole;
+import com.codeandpray.auth.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 
