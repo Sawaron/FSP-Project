@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://postgres:5432/technofest}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres_password}
+  jpa:
+    show-sql: false
