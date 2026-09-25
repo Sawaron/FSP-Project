@@ -25,6 +25,7 @@ import java.time.Clock;
 
 @Service
 @Transactional(readOnly = true)
+@lombok.RequiredArgsConstructor
 public class ResultService {
 
     private final ResultRepository repository;
@@ -33,22 +34,6 @@ public class ResultService {
     private final CurrentActor actor;
     private final ResultMapper mapper;
     private final Clock clock;
-
-    public ResultService(
-            ResultRepository repository,
-            ResultParticipation participation,
-            ResultRating rating,
-            CurrentActor actor,
-            ResultMapper mapper,
-            Clock clock
-    ) {
-        this.repository = repository;
-        this.participation = participation;
-        this.rating = rating;
-        this.actor = actor;
-        this.mapper = mapper;
-        this.clock = clock;
-    }
 
     public ResultResponse getPublished(long id) {
         requirePositiveId(id);

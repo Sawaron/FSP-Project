@@ -3,11 +3,14 @@ package com.codeandpray.competition.entity;
 import com.codeandpray.common.exception.BusinessException;
 import com.codeandpray.competition.enums.*;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.AccessLevel;
 
 import java.time.Instant;
 
-import org.springframework.security.access.AccessDeniedException;
-
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "competitions")
 public class Competition {
@@ -57,8 +60,11 @@ public class Competition {
     @Column(name = "created_by_user_id", nullable = false, updatable = false)
     private long createdByUserId;
 
-    protected Competition() {
-    }
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
 
     public static Competition create(CompetitionDetails details, long organizerId, Instant now) {
         if (organizerId <= 0) throw BusinessException.badRequest("Некорректный организатор");
@@ -69,11 +75,13 @@ public class Competition {
         competition.createdByUserId = organizerId;
         competition.status = CompetitionStatus.UPCOMING;
         competition.apply(details);
+        competition.createdAt = now;
+        competition.updatedAt = now;
         return competition;
     }
 
     public void requireOwner(long userId) {
-        if (createdByUserId != userId) throw new AccessDeniedException("Управлять можно только своим соревнованием");
+        if (createdByUserId != userId) throw BusinessException.forbidden("Управлять можно только своим соревнованием");
     }
 
     public void requireVersion(long expectedVersion) {
@@ -91,6 +99,7 @@ public class Competition {
             throw BusinessException.conflict("После появления заявок нельзя менять дисциплину и уровень");
         }
         apply(details);
+        updatedAt = now;
     }
 
     public void changeStatus(CompetitionStatus target, Instant now) {
@@ -106,6 +115,7 @@ public class Competition {
         if (!allowed)
             throw BusinessException.conflict("Недопустимый переход статуса или ещё не наступило нужное время");
         status = target;
+        updatedAt = now;
     }
 
     private void apply(CompetitionDetails d) {
@@ -126,59 +136,4 @@ public class Competition {
                 && now.isBefore(registrationClosesAt);
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public Long getVersion() {
-        return version;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public CompetitionLevel getLevel() {
-        return level;
-    }
-
-    public long getDisciplineId() {
-        return disciplineId;
-    }
-
-    public Instant getStartsAt() {
-        return startsAt;
-    }
-
-    public Instant getEndsAt() {
-        return endsAt;
-    }
-
-    public CompetitionFormat getFormat() {
-        return format;
-    }
-
-    public String getVenue() {
-        return venue;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public CompetitionStatus getStatus() {
-        return status;
-    }
-
-    public Instant getRegistrationOpensAt() {
-        return registrationOpensAt;
-    }
-
-    public Instant getRegistrationClosesAt() {
-        return registrationClosesAt;
-    }
-
-    public long getCreatedByUserId() {
-        return createdByUserId;
-    }
 }

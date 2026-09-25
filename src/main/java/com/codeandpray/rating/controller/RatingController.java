@@ -8,12 +8,9 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/ratings")
+@lombok.RequiredArgsConstructor
 public class RatingController {
     private final RatingService service;
-
-    public RatingController(RatingService service) {
-        this.service = service;
-    }
 
     @GetMapping
     public PageResponse<RatingResponse> leaderboard(@RequestParam(defaultValue = "0") @Min(0) @Max(10000) int page,

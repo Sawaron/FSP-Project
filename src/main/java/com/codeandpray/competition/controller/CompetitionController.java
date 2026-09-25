@@ -14,12 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/competitions")
+@lombok.RequiredArgsConstructor
 public class CompetitionController {
     private final CompetitionService service;
-
-    public CompetitionController(CompetitionService service) {
-        this.service = service;
-    }
 
     @GetMapping
     public PageResponse<CompetitionResponse> list(@RequestParam(required = false) CompetitionStatus status,

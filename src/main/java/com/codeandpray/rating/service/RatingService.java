@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.*;
 
 @Service
 @Transactional(readOnly = true)
+@lombok.RequiredArgsConstructor
 public class RatingService {
     private final RatingSnapshotRepository repository;
     private final RatingDataPort data;
@@ -23,18 +24,7 @@ public class RatingService {
     private final RatingMapper mapper;
     private final Clock clock;
 
-    public RatingService(RatingSnapshotRepository repository, RatingDataPort data,
-                         RatingCalculator calculator, RatingMapper mapper, Clock clock) {
-        this.repository = repository;
-        this.data = data;
-        this.calculator = calculator;
-        this.mapper = mapper;
-        this.clock = clock;
-    }
 
-    /**
-     * Только внутренний вызов из уже открытой транзакции публикации/смены квалификации.
-     */
     @Transactional(propagation = Propagation.MANDATORY)
     public RatingResponse recalculate(long athleteId) {
         if (athleteId <= 0) throw BusinessException.badRequest("Некорректный спортсмен");

@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
+@lombok.RequiredArgsConstructor
 public class CompetitionService {
     private final CompetitionRepository repository;
     private final DisciplineDirectory disciplines;
@@ -24,12 +25,6 @@ public class CompetitionService {
     private final CompetitionMapper mapper;
     private final Clock clock;
 
-    public CompetitionService(CompetitionRepository repository, DisciplineDirectory disciplines,
-            CompetitionParticipation participation, CurrentActor actor, CompetitionMapper mapper, Clock clock) {
-        this.repository = repository; this.disciplines = disciplines; this.participation = participation;
-        this.actor = actor; this.mapper = mapper; this.clock = clock;
-    }
-
     public CompetitionResponse get(long id) {
         return mapper.toResponse(repository.findById(id).orElseThrow(() -> BusinessException.notFound("Соревнование не найдено")), clock.instant());
     }
@@ -37,7 +32,7 @@ public class CompetitionService {
         if (disciplineId != null && disciplineId <= 0) throw BusinessException.badRequest("Некорректная дисциплина");
         Instant now = clock.instant();
         return PageResponse.from(repository.search(status, disciplineId,
-                PageRequests.of(page, size, Sort.by("startsAt").descending().and(Sort.by("id").descending())))
+                        PageRequests.of(page, size, Sort.by("startsAt").descending().and(Sort.by("id").descending())))
                 .map(c -> mapper.toResponse(c, now)));
     }
     @Transactional

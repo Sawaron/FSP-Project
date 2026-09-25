@@ -1,9 +1,14 @@
 package com.codeandpray.rating.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.AccessLevel;
 
 import java.time.Instant;
 
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "rating_snapshots")
 public class RatingSnapshot {
@@ -29,9 +34,6 @@ public class RatingSnapshot {
     @Column(name = "formula_version", nullable = false, updatable = false)
     private int formulaVersion;
 
-    protected RatingSnapshot() {
-    }
-
     public static RatingSnapshot create(long athleteId, long resultPoints, long qualificationPoints,
                                         Instant calculatedAt, int formulaVersion) {
         if (athleteId <= 0 || resultPoints < 0 || qualificationPoints < 0 || calculatedAt == null || formulaVersion <= 0) {
@@ -47,31 +49,4 @@ public class RatingSnapshot {
         return s;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public long getAthleteId() {
-        return athleteId;
-    }
-
-    public long getResultPoints() {
-        return resultPoints;
-    }
-
-    public long getQualificationPoints() {
-        return qualificationPoints;
-    }
-
-    public long getTotalPoints() {
-        return totalPoints;
-    }
-
-    public Instant getCalculatedAt() {
-        return calculatedAt;
-    }
-
-    public int getFormulaVersion() {
-        return formulaVersion;
-    }
 }

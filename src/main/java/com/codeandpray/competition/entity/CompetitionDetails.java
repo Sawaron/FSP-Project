@@ -4,7 +4,6 @@ import com.codeandpray.competition.enums.CompetitionFormat;
 import com.codeandpray.competition.enums.CompetitionLevel;
 import java.time.Instant;
 
-/** Значение предметной области: валидное расписание и редактируемые реквизиты. */
 public record CompetitionDetails(String title, CompetitionLevel level, long disciplineId,
         Instant startsAt, Instant endsAt, CompetitionFormat format, String venue,
         String description, Instant registrationOpensAt, Instant registrationClosesAt) {
