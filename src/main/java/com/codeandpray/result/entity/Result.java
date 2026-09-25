@@ -1,11 +1,17 @@
 package com.codeandpray.result.entity;
 
 import com.codeandpray.result.enums.ResultStatus;
+import com.codeandpray.common.exception.BusinessException;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.AccessLevel;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(
         name = "results",
@@ -57,9 +63,6 @@ public class Result {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    protected Result() {
-    }
-
     public static Result createDraft(
             long registrationId,
             long organizerId,
@@ -69,10 +72,10 @@ public class Result {
             Instant now
     ) {
         if (registrationId <= 0) {
-            throw new IllegalArgumentException("Некорректный идентификатор заявки");
+            throw BusinessException.badRequest("Некорректный идентификатор заявки");
         }
         if (organizerId <= 0) {
-            throw new IllegalArgumentException("Некорректный идентификатор организатора");
+            throw BusinessException.badRequest("Некорректный идентификатор организатора");
         }
 
         requireTime(now);
@@ -95,7 +98,7 @@ public class Result {
             Instant now
     ) {
         if (status != ResultStatus.DRAFT) {
-            throw new IllegalStateException(
+            throw BusinessException.conflict(
                     "Опубликованный результат нельзя редактировать как черновик"
             );
         }
@@ -104,7 +107,6 @@ public class Result {
         applyPerformance(place, performanceValue, performanceUnit);
         updatedAt = now;
     }
-
 
     public boolean publish(
             long calculatedRatingPoints,
@@ -127,7 +129,6 @@ public class Result {
         return true;
     }
 
-
     public void correctPublished(
             Integer place,
             BigDecimal performanceValue,
@@ -137,7 +138,7 @@ public class Result {
             Instant now
     ) {
         if (status != ResultStatus.PUBLISHED) {
-            throw new IllegalStateException("Результат ещё не опубликован");
+            throw BusinessException.conflict("Результат ещё не опубликован");
         }
 
         requireTime(now);
@@ -149,13 +150,25 @@ public class Result {
         updatedAt = now;
     }
 
+    public void requireDraft() {
+        if (status != ResultStatus.DRAFT) {
+            throw BusinessException.conflict("Операция разрешена только для черновика");
+        }
+    }
+
+    public void requireVersion(long expectedVersion) {
+        if (version == null || version.longValue() != expectedVersion) {
+            throw BusinessException.conflict("Результат изменился: обновите страницу");
+        }
+    }
+
     private void applyPerformance(
             Integer place,
             BigDecimal performanceValue,
             String performanceUnit
     ) {
         if (place != null && place <= 0) {
-            throw new IllegalArgumentException("Место должно быть положительным");
+            throw BusinessException.badRequest("Место должно быть положительным");
         }
 
         String normalizedUnit = performanceUnit == null
@@ -167,19 +180,19 @@ public class Result {
         }
 
         if ((performanceValue == null) != (normalizedUnit == null)) {
-            throw new IllegalArgumentException(
+            throw BusinessException.badRequest(
                     "Показатель результата и его единица должны быть указаны вместе"
             );
         }
 
         if (place == null && performanceValue == null) {
-            throw new IllegalArgumentException(
+            throw BusinessException.badRequest(
                     "Укажите место или числовой показатель результата"
             );
         }
 
         if (normalizedUnit != null && normalizedUnit.length() > 30) {
-            throw new IllegalArgumentException(
+            throw BusinessException.badRequest(
                     "Единица измерения не должна превышать 30 символов"
             );
         }
@@ -190,7 +203,7 @@ public class Result {
                     - normalizedValue.scale();
 
             if (normalizedValue.scale() > 4 || integerDigits > 15) {
-                throw new IllegalArgumentException(
+                throw BusinessException.badRequest(
                         "Показатель допускает до 15 цифр до запятой и до 4 после"
                 );
             }
@@ -203,68 +216,17 @@ public class Result {
 
     private static void requireRating(long points, int formulaVersion) {
         if (points < 0) {
-            throw new IllegalArgumentException("Баллы не могут быть отрицательными");
+            throw BusinessException.badRequest("Баллы не могут быть отрицательными");
         }
         if (formulaVersion <= 0) {
-            throw new IllegalArgumentException("Версия формулы должна быть положительной");
+            throw BusinessException.badRequest("Версия формулы должна быть положительной");
         }
     }
 
     private static void requireTime(Instant now) {
         if (now == null) {
-            throw new IllegalArgumentException("Не указано время операции");
+            throw BusinessException.badRequest("Не указано время операции");
         }
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public Long getVersion() {
-        return version;
-    }
-
-    public long getRegistrationId() {
-        return registrationId;
-    }
-
-    public Integer getPlace() {
-        return place;
-    }
-
-    public BigDecimal getPerformanceValue() {
-        return performanceValue;
-    }
-
-    public String getPerformanceUnit() {
-        return performanceUnit;
-    }
-
-    public Long getRatingPoints() {
-        return ratingPoints;
-    }
-
-    public Integer getFormulaVersion() {
-        return formulaVersion;
-    }
-
-    public ResultStatus getStatus() {
-        return status;
-    }
-
-    public Instant getPublishedAt() {
-        return publishedAt;
-    }
-
-    public long getEnteredByUserId() {
-        return enteredByUserId;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
 }

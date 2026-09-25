@@ -1,7 +1,9 @@
 package com.codeandpray.security;
 
 import com.codeandpray.auth.entity.User;
-import lombok.RequiredArgsConstructor;
+import com.codeandpray.auth.enums.UserRole;
+import lombok.Getter;
+import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,51 +11,45 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-@RequiredArgsConstructor
-public class SecurityUser implements UserDetails {
+public class SecurityUser implements UserDetails, CredentialsContainer {
+    @Getter
+    private final Long id;
+    @Getter
+    private final UserRole role;
+    private final String email;
+    private String passwordHash;
+    private final boolean enabled;
 
-    private final User user;
-
-    public User getUser() {
-        return user;
-    }
-
-    public Long getId() {
-        return user.getId();
+    public SecurityUser(User user) {
+        id = user.getId();
+        role = user.getRole();
+        email = user.getEmail();
+        passwordHash = user.getPasswordHash();
+        enabled = user.isEnabled();
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override
     public String getPassword() {
-        return user.getPasswordHash();
+        return passwordHash;
     }
 
     @Override
     public String getUsername() {
-        return user.getEmail();
+        return email;
     }
 
     @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
+    public void eraseCredentials() {
+        passwordHash = null;
     }
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
 }

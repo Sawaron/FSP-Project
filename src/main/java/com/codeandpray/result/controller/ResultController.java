@@ -18,13 +18,10 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/api/results")
+@lombok.RequiredArgsConstructor
 public class ResultController {
 
     private final ResultService service;
-
-    public ResultController(ResultService service) {
-        this.service = service;
-    }
 
     @GetMapping
     public PageResponse<ResultResponse> listPublished(
