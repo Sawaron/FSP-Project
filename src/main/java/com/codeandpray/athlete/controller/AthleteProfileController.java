@@ -20,41 +20,30 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/athletes")
 @RequiredArgsConstructor
 public class AthleteProfileController {
+
     private final AthleteProfileService service;
 
     @PostMapping("/me/profile")
     @ResponseStatus(HttpStatus.CREATED)
-    public AthleteProfileResponse createMine(@Valid @RequestBody AthleteProfileRequest request) {
+    public AthleteProfileResponse createMine(
+            @Valid @RequestBody AthleteProfileRequest request) {
         return service.createMine(request);
     }
 
-    @PostMapping
-    public ResponseEntity<AthleteProfileDto> create(
-            @RequestParam Long userId,
+    @GetMapping("/me/profile")
+    public AthleteProfileResponse getMine() {
+        return service.getMine();
+    }
+
+    @PutMapping("/me/profile")
+    public AthleteProfileResponse updateMine(
             @Valid @RequestBody AthleteProfileRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(userId, request));
+        return service.updateMine(request);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<AthleteProfileDto> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(service.getById(id));
-    }
-
-    @GetMapping
-    public ResponseEntity<List<AthleteProfileDto>> getAll() {
-        return ResponseEntity.ok(service.getAll());
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<AthleteProfileDto> update(
-            @PathVariable Long id,
-            @Valid @RequestBody AthleteProfileRequest request) {
-        return ResponseEntity.ok(service.update(id, request));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.delete(id);
-        return ResponseEntity.noContent().build();
+    @GetMapping("/{athleteId}")
+    public AthleteProfileResponse getById(
+            @PathVariable @Positive long athleteId) {
+        return service.getById(athleteId);
     }
 }
