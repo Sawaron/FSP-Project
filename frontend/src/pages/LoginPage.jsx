@@ -19,7 +19,9 @@ function LoginPage() {
       localStorage.setItem('userId', data.userId);
       localStorage.setItem('email', data.email);
       localStorage.setItem('role', data.role);
-      navigate('/');
+
+      // МЕНЯЕМ ЗДЕСЬ: переходим в профиль вместо главной
+      navigate('/profile');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -36,22 +38,11 @@ function LoginPage() {
         <form onSubmit={handleSubmit} className="auth-form">
           <label>
             Email
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </label>
-
           <label>
             Пароль
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
           </label>
 
           {error && <div className="auth-error">{error}</div>}

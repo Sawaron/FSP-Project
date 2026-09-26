@@ -6,6 +6,7 @@ import CompetitionsPage from './pages/CompetitionsPage';
 import RatingPage from './pages/RatingPage';
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
+import ProfilePage from './pages/ProfilePage'; // <-- ДОБАВЛЕН ИМПОРТ
 import './App.css';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
           <Route path="/rating" element={<RatingPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/profile" element={<ProfilePage />} /> {/* <-- ДОБАВЛЕН НОВЫЙ МАРШРУТ */}
         </Routes>
       </div>
     </BrowserRouter>
