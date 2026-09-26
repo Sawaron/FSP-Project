@@ -69,3 +69,28 @@ export async function loginUser(email, password) {
   if (!res.ok) throw new Error(data.message || 'Неверный email или пароль');
   return data;
 }
+// Получить список всех организаций
+export async function getOrganizations() {
+  const token = localStorage.getItem('token');
+  const res = await fetch(`${BASE_URL}/organizations`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) throw new Error('Ошибка загрузки организаций');
+  return res.json();
+}
+
+// Получить список всех квалификаций
+export async function getQualifications() {
+  const token = localStorage.getItem('token');
+  const res = await fetch(`${BASE_URL}/qualifications`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) throw new Error('Ошибка загрузки квалификаций');
+  return res.json();
+}
