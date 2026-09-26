@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:8082/api';
+const BASE_URL = 'http://127.0.0.1:8082/api';
 
 // Получить список всех профилей (если нужно)
 export async function getAthleteProfiles() {
