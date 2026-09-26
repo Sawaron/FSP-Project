@@ -1,8 +1,9 @@
+// Для macOS лучше использовать 127.0.0.1 вместо localhost, чтобы избежать проблем с IPv6.
 const BASE_URL = 'http://127.0.0.1:8082/api';
 
-// Получить список всех профилей (если нужно)
+// Получить список всех профилей (если нужно для публичной страницы)
 export async function getAthleteProfiles() {
-  const res = await fetch(`${BASE_URL}/athletes`); // Проверь путь на бэке, если есть такой
+  const res = await fetch(`${BASE_URL}/athletes`); // Проверь точный путь на бэке
   if (!res.ok) throw new Error('Ошибка загрузки профилей');
   return res.json();
 }
@@ -12,7 +13,7 @@ export async function getMyProfile() {
   const token = localStorage.getItem('token');
   const res = await fetch(`${BASE_URL}/athletes/me/profile`, {
     headers: {
-      'Authorization': `Bearer ${token}`, // Обязательно для /me эндпоинтов
+      'Authorization': `Bearer ${token}`,
     },
   });
 
@@ -34,8 +35,6 @@ export async function createMyProfile(profileData) {
       'Authorization': `Bearer ${token}`,
     },
     body: JSON.stringify(profileData),
-    // profileData должен совпадать с твоим Java DTO AthleteProfileRequest
-    // например: { fullName, city, organizationId, qualificationId }
   });
 
   if (!res.ok) {
@@ -69,6 +68,7 @@ export async function loginUser(email, password) {
   if (!res.ok) throw new Error(data.message || 'Неверный email или пароль');
   return data;
 }
+
 // Получить список всех организаций
 export async function getOrganizations() {
   const token = localStorage.getItem('token');
