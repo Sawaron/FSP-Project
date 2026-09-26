@@ -26,12 +26,16 @@ function RegisterPage() {
     setLoading(true);
     try {
       const data = await registerUser(email, password);
+
       localStorage.setItem('token', data.token);
       localStorage.setItem('userId', data.userId);
       localStorage.setItem('email', data.email);
       localStorage.setItem('role', data.role);
 
-      // МЕНЯЕМ ЗДЕСЬ: переходим в профиль вместо главной
+      // 🔥 ДОБАВЛЕННАЯ СТРОКА: мгновенно обновляет Navbar
+      window.dispatchEvent(new Event('storage'));
+
+      // Переходим в профиль
       navigate('/profile');
     } catch (err) {
       setError(err.message);

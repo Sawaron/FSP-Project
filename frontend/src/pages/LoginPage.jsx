@@ -15,12 +15,14 @@ function LoginPage() {
     setLoading(true);
     try {
       const data = await loginUser(email, password);
+
       localStorage.setItem('token', data.token);
       localStorage.setItem('userId', data.userId);
       localStorage.setItem('email', data.email);
       localStorage.setItem('role', data.role);
 
-      // МЕНЯЕМ ЗДЕСЬ: переходим в профиль вместо главной
+      window.dispatchEvent(new Event('storage'));
+
       navigate('/profile');
     } catch (err) {
       setError(err.message);
