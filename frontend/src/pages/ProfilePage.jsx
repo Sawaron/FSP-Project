@@ -65,6 +65,7 @@ export default function ProfilePage() {
               </p>
             </div>
 
+
             <div>
               <label style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Квалификация</label>
               <p style={{ margin: '4px 0 0', fontSize: '16px' }}>

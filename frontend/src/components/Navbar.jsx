@@ -1,6 +1,20 @@
+import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 
 function Navbar() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem('token');
+      setIsLoggedIn(!!token);
+    };
+
+    checkAuth();
+    window.addEventListener('storage', checkAuth);
+    return () => window.removeEventListener('storage', checkAuth);
+  }, []);
+
   return (
     <nav className="navbar">
       <NavLink to="/" className="navbar-brand">
@@ -22,12 +36,20 @@ function Navbar() {
         </NavLink>
       </div>
       <div className="navbar-auth">
-        <NavLink to="/login" className="btn-secondary btn-small">
-          Вход
-        </NavLink>
-        <NavLink to="/register" className="btn-primary btn-small">
-          Регистрация
-        </NavLink>
+        {isLoggedIn ? (
+          <NavLink to="/profile" className="btn-primary btn-small">
+            👤 Профиль
+          </NavLink>
+        ) : (
+          <>
+            <NavLink to="/login" className="btn-secondary btn-small">
+              Вход
+            </NavLink>
+            <NavLink to="/register" className="btn-primary btn-small">
+              Регистрация
+            </NavLink>
+          </>
+        )}
       </div>
     </nav>
   );
