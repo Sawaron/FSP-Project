@@ -1,48 +1,10 @@
 import { useEffect, useState } from 'react';
-import { getAthleteProfiles } from '../api';
+import { Link } from 'react-router-dom';
+import { athleteApi } from '../api';
+import { Alert, Empty, Loader, PageTitle, Pagination } from '../components/Ui';
 
-function AthletesPage() {
-const [profiles, setProfiles] = useState([]);
-const [status, setStatus] = useState('loading');
-
-useEffect(() => {
-getAthleteProfiles()
-.then(data => {
-setProfiles(data);
-setStatus('ready');
-})
-.catch(() => setStatus('error'));
-}, []);
-
-return (
-<div className="page">
-    <div className="page-header">
-        <h1>Спортсмены</h1>
-        <p>Профили зарегистрированных участников Федерации</p>
-    </div>
-
-    {status === 'loading' && <div className="loading">Загрузка…</div>}
-    {status === 'error' && <div className="error">Не удалось загрузить данные</div>}
-    {status === 'ready' && profiles.length === 0 && (
-    <div className="empty">Пока нет зарегистрированных спортсменов</div>
-    )}
-
-    {status === 'ready' && profiles.length > 0 && (
-    <div className="card-grid">
-        {profiles.map((p, i) => (
-        <div className="card" key={i}>
-            <div className="card-title">{p.fullName}</div>
-            <div className="card-meta">
-                <span className="badge">{p.city}</span>
-                {p.qualificationId && <span className="badge green">Квалификация #{p.qualificationId}</span>}
-                {p.organizationId && <span className="badge gray">Организация #{p.organizationId}</span>}
-            </div>
-        </div>
-        ))}
-    </div>
-    )}
-</div>
-);
+export default function AthletesPage() {
+  const [page, setPage] = useState(0); const [data, setData] = useState(null); const [error, setError] = useState('');
+  useEffect(() => { setData(null); athleteApi.list(page, 12).then(setData).catch((e) => setError(e.message)); }, [page]);
+  return <main className="page"><PageTitle eyebrow="Сообщество" title="Спортсмены Федерации" subtitle="Участники, которые развивают спортивное программирование в регионе." /><Alert>{error}</Alert>{!data && !error && <Loader />}{data?.content.length === 0 && <Empty title="Профилей пока нет" />}{data && <div className="athlete-grid">{data.content.map((athlete) => <Link to={`/athletes/${athlete.id}`} className="athlete-card" key={athlete.id}><div className="avatar">{athlete.fullName.slice(0, 1)}</div><div><h3>{athlete.fullName}</h3><p>{athlete.city}</p><span>{athlete.qualification?.name || 'Без квалификации'}</span>{athlete.organization && <small>{athlete.organization.name}</small>}</div></Link>)}</div>}<Pagination page={page} totalPages={data?.totalPages} onChange={setPage} /></main>;
 }
-
-export default AthletesPage;

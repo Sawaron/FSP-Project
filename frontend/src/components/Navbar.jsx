@@ -1,84 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth';
 
-function Navbar() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+export default function Navbar() {
+  const { user, signOut } = useAuth();
+  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const close = () => setOpen(false);
+  const logout = () => { signOut(); close(); navigate('/'); };
 
-  useEffect(() => {
-    const checkAuth = () => {
-      const token = localStorage.getItem('token');
-      setIsLoggedIn(!!token);
-    };
-
-    checkAuth();
-    // Слушаем изменения в localStorage (для работы между вкладками)
-    window.addEventListener('storage', checkAuth);
-    return () => window.removeEventListener('storage', checkAuth);
-  }, []);
-
-  const handleLogout = () => {
-    // 1. Очищаем все данные авторизации
-    localStorage.removeItem('token');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('email');
-    localStorage.removeItem('role');
-
-    // 2. Уведомляем Navbar и другие вкладки об изменении
-    window.dispatchEvent(new Event('storage'));
-
-    // 3. Перенаправляем пользователя на главную страницу
-    navigate('/');
-  };
-
-  return (
-    <nav className="navbar">
-      <NavLink to="/" className="navbar-brand">
-        <span className="navbar-logo">{'</>'}</span>
-        Федерация спортивного программирования РД
-      </NavLink>
-      <div className="navbar-links">
-        <NavLink to="/" end className={({ isActive }) => (isActive ? 'active' : '')}>
-          Главная
-        </NavLink>
-        <NavLink to="/athletes" className={({ isActive }) => (isActive ? 'active' : '')}>
-          Спортсмены
-        </NavLink>
-        <NavLink to="/competitions" className={({ isActive }) => (isActive ? 'active' : '')}>
-          Соревнования
-        </NavLink>
-        <NavLink to="/rating" className={({ isActive }) => (isActive ? 'active' : '')}>
-          Рейтинг
-        </NavLink>
-      </div>
+  return <header className="navbar">
+    <NavLink to="/" className="navbar-brand" onClick={close}><span className="navbar-logo">{'</>'}</span><span>ФСП <em>Дагестан</em></span></NavLink>
+    <button className="menu-button" onClick={() => setOpen(!open)} aria-label="Открыть меню">☰</button>
+    <div className={`nav-shell ${open ? 'open' : ''}`}>
+      <nav className="navbar-links">
+        <NavLink to="/" end onClick={close}>Главная</NavLink><NavLink to="/athletes" onClick={close}>Спортсмены</NavLink>
+        <NavLink to="/competitions" onClick={close}>Соревнования</NavLink><NavLink to="/rating" onClick={close}>Рейтинг</NavLink>
+        {user?.role === 'ORGANIZER' && <NavLink to="/organizer" onClick={close}>Управление</NavLink>}
+      </nav>
       <div className="navbar-auth">
-        {isLoggedIn ? (
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <NavLink to="/profile" className="btn-primary btn-small">
-              👤 Профиль
-            </NavLink>
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="btn-secondary btn-small"
-              style={{ cursor: 'pointer', border: 'none' }}
-            >
-              Выйти
-            </button>
-          </div>
-        ) : (
-          <>
-            <NavLink to="/login" className="btn-secondary btn-small">
-              Вход
-            </NavLink>
-            <NavLink to="/register" className="btn-primary btn-small">
-              Регистрация
-            </NavLink>
-          </>
-        )}
+        {user ? <><NavLink to={user.role === 'ORGANIZER' ? '/organizer' : '/profile'} className="user-chip" onClick={close}><span>{user.email?.slice(0, 1).toUpperCase()}</span><small>{user.email}</small></NavLink><button className="btn-ghost btn-small" onClick={logout}>Выйти</button></>
+          : <><NavLink to="/login" className="btn-ghost btn-small" onClick={close}>Вход</NavLink><NavLink to="/register" className="btn-primary btn-small" onClick={close}>Регистрация</NavLink></>}
       </div>
-    </nav>
-  );
+    </div>
+  </header>;
 }
-
-export default Navbar;

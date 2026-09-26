@@ -44,7 +44,8 @@ public class SecurityConfig {
                                 "/api/competitions", "/api/competitions/*",
                                 "/api/results", "/api/results/*",
                                 "/api/ratings/**", "/api/disciplines/**",
-                                "/api/organizations/**", "/api/qualifications/**").permitAll()
+                                "/api/organizations/**", "/api/qualifications/**",
+                                "/api/athletes", "/api/athletes/*").permitAll()
                         .requestMatchers("/api/competitions/**", "/api/results/**",
                                 "/api/registrations/*/result").hasRole("ORGANIZER")
                         .anyRequest().authenticated())
