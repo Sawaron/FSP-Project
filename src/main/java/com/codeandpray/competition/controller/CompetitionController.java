@@ -18,6 +18,18 @@ import org.springframework.web.bind.annotation.*;
 public class CompetitionController {
     private final CompetitionService service;
 
+    @GetMapping("/mine")
+    public PageResponse<CompetitionResponse> mine(
+            @RequestParam(defaultValue = "0") @Min(0) @Max(10000) int page,
+            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
+        return service.mine(page, size);
+    }
+
+    @GetMapping("/{id}/management")
+    public CompetitionResponse management(@PathVariable @Positive long id) {
+        return service.management(id);
+    }
+
     @GetMapping
     public PageResponse<CompetitionResponse> list(@RequestParam(required = false) CompetitionStatus status,
                                                   @RequestParam(required = false) @Positive Long disciplineId,

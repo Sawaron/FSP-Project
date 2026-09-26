@@ -47,6 +47,15 @@ public class Competition {
     @Column(nullable = false, length = 5000)
     private String description;
 
+    @Column(nullable = false, length = 5000)
+    private String rules = "";
+
+    @Column(name = "contest_enabled", nullable = false, updatable = false)
+    private boolean contestEnabled;
+
+    @Column(name = "finalized_at")
+    private Instant finalizedAt;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private CompetitionStatus status;
@@ -73,7 +82,8 @@ public class Competition {
         }
         Competition competition = new Competition();
         competition.createdByUserId = organizerId;
-        competition.status = CompetitionStatus.UPCOMING;
+        competition.status = CompetitionStatus.DRAFT;
+        competition.contestEnabled = true;
         competition.apply(details);
         competition.createdAt = now;
         competition.updatedAt = now;
@@ -91,7 +101,8 @@ public class Competition {
     }
 
     public void updateDetails(CompetitionDetails details, boolean hasRegistrations, Instant now) {
-        if (status != CompetitionStatus.UPCOMING || !now.isBefore(startsAt)) {
+        if ((status != CompetitionStatus.DRAFT && status != CompetitionStatus.UPCOMING)
+                || (status == CompetitionStatus.UPCOMING && !now.isBefore(startsAt))) {
             throw BusinessException.conflict("Редактирование доступно до начала предстоящего соревнования");
         }
         if (!details.startsAt().isAfter(now)) throw BusinessException.badRequest("Начало должно быть в будущем");
@@ -106,8 +117,12 @@ public class Competition {
         if (target == null) throw BusinessException.badRequest("Укажите статус");
         if (target == status) return;
         boolean allowed = switch (status) {
+            case DRAFT -> target == CompetitionStatus.CANCELLED
+                    || (target == CompetitionStatus.UPCOMING && startsAt.isAfter(now)
+                    && registrationClosesAt.isAfter(now) && !rules.isBlank() && !description.isBlank());
             case UPCOMING -> target == CompetitionStatus.CANCELLED
-                    || (target == CompetitionStatus.ONGOING && !now.isBefore(startsAt));
+                    || (target == CompetitionStatus.ONGOING && !now.isBefore(startsAt) && now.isBefore(endsAt))
+                    || (target == CompetitionStatus.COMPLETED && !now.isBefore(endsAt));
             case ONGOING -> target == CompetitionStatus.CANCELLED
                     || (target == CompetitionStatus.COMPLETED && !now.isBefore(endsAt));
             case COMPLETED, CANCELLED -> false;
@@ -134,6 +149,27 @@ public class Competition {
     public boolean isRegistrationOpen(Instant now) {
         return status == CompetitionStatus.UPCOMING && !now.isBefore(registrationOpensAt)
                 && now.isBefore(registrationClosesAt);
+    }
+
+    public void changeRules(String value, Instant now) {
+        if (value == null || value.isBlank() || value.strip().length() > 5000) {
+            throw BusinessException.badRequest("Укажите правила до 5000 символов");
+        }
+        if (status != CompetitionStatus.DRAFT && (status != CompetitionStatus.UPCOMING || !now.isBefore(startsAt))) {
+            throw BusinessException.conflict("Правила можно менять только до начала");
+        }
+        rules = value.strip();
+        updatedAt = now;
+    }
+
+    public void finalizeResults(Instant now) {
+        if (!contestEnabled || status != CompetitionStatus.COMPLETED) {
+            throw BusinessException.conflict("Контест ещё не завершён");
+        }
+        if (finalizedAt == null) {
+            finalizedAt = now;
+            updatedAt = now;
+        }
     }
 
 }

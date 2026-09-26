@@ -15,7 +15,6 @@ import com.codeandpray.result.mapper.ResultMapper;
 import com.codeandpray.result.port.ResultParticipation;
 import com.codeandpray.result.port.ResultParticipation.ParticipationView;
 import com.codeandpray.result.port.ResultRating;
-import com.codeandpray.result.port.ResultAthleteDirectory;
 import com.codeandpray.result.repository.ResultRepository;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
@@ -32,10 +31,18 @@ public class ResultService {
     private final ResultRepository repository;
     private final ResultParticipation participation;
     private final ResultRating rating;
-    private final ResultAthleteDirectory athletes;
     private final CurrentActor actor;
     private final ResultMapper mapper;
     private final Clock clock;
+    private final com.codeandpray.result.repository.AthleteResultQuery history;
+    private final com.codeandpray.result.port.ResultAthleteDirectory athletes;
+
+    public PageResponse<com.codeandpray.result.dto.AthleteResultResponse> listPublishedByAthlete(long athleteId, int page, int size) {
+        requirePositiveId(athleteId);
+        if (!athletes.exists(athleteId)) throw BusinessException.notFound("Спортсмен не найден");
+        return PageResponse.from(history.find(athleteId, PageRequests.of(page, size, Sort.unsorted())));
+    }
+    private final com.codeandpray.result.port.ResultWritePolicy writePolicy;
 
     public ResultResponse getPublished(long id) {
         requirePositiveId(id);
@@ -62,21 +69,6 @@ public class ResultService {
                 repository.findByStatus(ResultStatus.PUBLISHED, pageable)
                         .map(mapper::toResponse)
         );
-    }
-
-    public PageResponse<ResultResponse> listPublishedByAthlete(
-            long athleteId,
-            int page,
-            int size
-    ) {
-        requirePositiveId(athleteId);
-        if (!athletes.exists(athleteId)) {
-            throw BusinessException.notFound("Спортсмен не найден");
-        }
-        return PageResponse.from(repository.findPublishedByAthleteId(
-                athleteId,
-                PageRequests.of(page, size, Sort.unsorted())
-        ).map(mapper::toResponse));
     }
 
     public ResultResponse getForOrganizer(long id) {
@@ -107,6 +99,7 @@ public class ResultService {
 
         requireOwner(context, organizerId);
         requireActiveRegistration(context);
+        writePolicy.requireManual(context.competitionId());
         requireStartedCompetition(context);
 
         if (repository.existsByRegistrationId(request.registrationId())) {
@@ -251,6 +244,8 @@ public class ResultService {
                 .orElseThrow(() -> BusinessException.notFound(
                         "Результат не найден"
                 ));
+
+        writePolicy.requireManual(context.competitionId());
 
         return new LockedResult(result, context);
     }

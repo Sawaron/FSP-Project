@@ -22,7 +22,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             "users_email_key", "uk_users_email_normalized",
             "registrations_competition_id_athlete_id_key",
             "uk_registrations_comp_athlete",
-            "results_registration_id_key", "uk_results_registration"
+            "results_registration_id_key", "uk_results_registration", "uk_submission_task_registration"
     );
 
     @ExceptionHandler(ApplicationException.class)

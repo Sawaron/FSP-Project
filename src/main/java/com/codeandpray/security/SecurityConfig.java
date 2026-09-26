@@ -32,6 +32,9 @@ public class SecurityConfig {
                 .exceptionHandling(e -> e.authenticationEntryPoint(errors).accessDeniedHandler(errors))
                 .authorizeHttpRequests(a -> a
                         .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
+                        .requestMatchers("/api/contests/*/management/**", "/api/competitions/mine",
+                                "/api/competitions/*/management").hasRole("ORGANIZER")
+                        .requestMatchers("/api/contests/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/competitions/*/registrations").hasRole("ORGANIZER")
                         .requestMatchers(HttpMethod.GET, "/api/results/*/management").hasRole("ORGANIZER")
                         .requestMatchers(HttpMethod.POST, "/api/competitions/*/registrations").hasRole("ATHLETE")
