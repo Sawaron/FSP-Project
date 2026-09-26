@@ -28,7 +28,8 @@ public record UpdateCompetitionRequest(
         @NotNull
         Instant registrationClosesAt,
         @NotNull @PositiveOrZero
-        Long version) {
+        Long version,
+        @NotBlank @Size(max = 5000) String rules) {
 
     public CompetitionDetails toDetails() {
         return new CompetitionDetails(title, level, disciplineId, startsAt, endsAt, format,

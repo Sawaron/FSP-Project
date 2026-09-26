@@ -14,6 +14,6 @@ public class CompetitionMapper {
         return new CompetitionResponse(c.getId(), c.getVersion(), c.getTitle(), c.getLevel(),
                 c.getDisciplineId(), c.getStartsAt(), c.getEndsAt(), c.getFormat(), c.getVenue(),
                 c.getDescription(), c.getStatus(), c.getRegistrationOpensAt(), c.getRegistrationClosesAt(),
-                c.isRegistrationOpen(now));
+                c.isRegistrationOpen(now), c.getRules(), c.isContestEnabled(), c.getFinalizedAt());
     }
 }

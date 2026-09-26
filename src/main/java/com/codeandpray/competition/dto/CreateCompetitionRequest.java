@@ -26,7 +26,8 @@ public record CreateCompetitionRequest(
         @NotNull
         Instant registrationOpensAt,
         @NotNull
-        Instant registrationClosesAt) {
+        Instant registrationClosesAt,
+        @NotBlank @Size(max = 5000) String rules) {
 
     public CompetitionDetails toDetails() {
         return new CompetitionDetails(title, level, disciplineId, startsAt, endsAt, format,
