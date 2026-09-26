@@ -5,9 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9f133585-7080-44f3-8ec5-2bc6fab09797" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/api.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/eslint.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/eslint.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/api.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/api.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/Navbar.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Navbar.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/AthletesPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/AthletesPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/CompetitionsPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/CompetitionsPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/HomePage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/HomePage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/ProfilePage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/ProfilePage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/RatingPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/RatingPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/vite.config.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,7 +74,8 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "apii"
+    "git-widget-placeholder": "create-full-frontend",
+    "node.js.selected.package.tslint": "(autodetect)"
   }
 }]]></component>
   <component name="RecentsManager">

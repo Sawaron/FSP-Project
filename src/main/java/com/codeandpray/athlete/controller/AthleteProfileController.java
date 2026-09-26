@@ -3,7 +3,10 @@ package com.codeandpray.athlete.controller;
 import com.codeandpray.athlete.dto.AthleteProfileRequest;
 import com.codeandpray.athlete.dto.AthleteProfileResponse;
 import com.codeandpray.athlete.service.AthleteProfileService;
+import com.codeandpray.common.web.PageResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -39,5 +42,12 @@ public class AthleteProfileController {
     public AthleteProfileResponse getById(
             @PathVariable @Positive long athleteId) {
         return service.getById(athleteId);
+    }
+
+    @GetMapping
+    public PageResponse<AthleteProfileResponse> list(
+            @RequestParam(defaultValue = "0") @Min(0) @Max(10000) int page,
+            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
+        return service.list(page, size);
     }
 }

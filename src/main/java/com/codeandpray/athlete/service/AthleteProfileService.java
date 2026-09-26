@@ -12,7 +12,10 @@ import com.codeandpray.athlete.repository.OrganizationRepository;
 import com.codeandpray.athlete.repository.QualificationRepository;
 import com.codeandpray.common.exception.BusinessException;
 import com.codeandpray.common.security.CurrentActor;
+import com.codeandpray.common.web.PageRequests;
+import com.codeandpray.common.web.PageResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,6 +62,12 @@ public class AthleteProfileService {
     public AthleteProfileResponse getById(long athleteId) {
         return mapper.toResponse(profiles.findById(athleteId)
                 .orElseThrow(() -> BusinessException.notFound("Профиль спортсмена не найден")));
+    }
+
+    public PageResponse<AthleteProfileResponse> list(int page, int size) {
+        return PageResponse.from(profiles.findAll(
+                PageRequests.of(page, size, Sort.by("fullName").ascending().and(Sort.by("id").ascending()))
+        ).map(mapper::toResponse));
     }
 
     @Transactional
